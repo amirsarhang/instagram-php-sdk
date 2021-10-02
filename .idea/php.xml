@@ -64,7 +64,7 @@
       <path value="$PROJECT_DIR$/vendor/jakub-onderka/php-parallel-lint" />
     </include_path>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="7.2">
+  <component name="PhpProjectSharedConfiguration" php_language_level="7">
     <option name="suggestChangeDefaultLanguageLevel" value="false" />
   </component>
   <component name="PhpStan">

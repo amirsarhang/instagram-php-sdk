@@ -20,7 +20,7 @@
         "wiki": "https://github.com/amirsarhang/instagram-php-sdk/wiki"
     },
     "require": {
-        "php": "^7.2",
+        "php": ">=7.0",
         "facebook/graph-sdk": "^5.7"
     },
     "autoload": {
