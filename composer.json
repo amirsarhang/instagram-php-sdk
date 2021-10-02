@@ -1,0 +1,34 @@
+{
+    "name": "amirsarhang/instagram-php-sdk",
+    "description": "It's unofficial Instagram SDK for PHP.",
+    "type": "library",
+    "keywords": ["Instagram", "Instagram-PHP", "Instagram-SDK", "Instagram-Library"],
+    "homepage": "https://github.com/amirsarhang/instagram-php-sdk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Amirhossein Sarhangian",
+            "email": "ah.sarhangian@gmail.com",
+            "homepage": "https://github.com/amirsarhang/instagram-php-sdk/"
+        }
+    ],
+    "support": {
+        "docs": "https://amirsarhang.github.io/instagram-php-sdk/",
+        "issues": "https://github.com/amirsarhang/instagram-php-sdk/issues",
+        "rss": "https://github.com/amirsarhang/instagram-php-sdk/releases.atom",
+        "source": "https://github.com/amirsarhang/instagram-php-sdk.git",
+        "wiki": "https://github.com/amirsarhang/instagram-php-sdk/wiki"
+    },
+    "require": {
+        "php": "^7.2",
+        "facebook/graph-sdk": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Amirsarhang\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
