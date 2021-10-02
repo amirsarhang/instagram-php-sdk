@@ -47,9 +47,9 @@ class InstagramGraphLogin {
     public function __construct()
     {
         $this->fb = new \Facebook\Facebook([
-            'app_id' => env('FACEBOOK_APP_ID'),
-            'app_secret' => env('FACEBOOK_APP_SECRET'),
-            'default_graph_version' => env('FACEBOOK_GRAPH_VERSION'),
+            'app_id' => $_ENV['FACEBOOK_APP_ID'],
+            'app_secret' => $_ENV['FACEBOOK_APP_SECRET'],
+            'default_graph_version' => $_ENV['FACEBOOK_GRAPH_VERSION'],
             'persistent_data_handler' => new SessionPersistentDataHandler()
         ]);
         $this->fbHelper = $this->fb->getRedirectLoginHelper();
@@ -62,7 +62,7 @@ class InstagramGraphLogin {
      */
     public function getLoginUrl()
     {
-        return $this->fbHelper->getLoginUrl(getenv('INSTAGRAM_CALLBACK_URL'), $this->permissions);
+        return $this->fbHelper->getLoginUrl($_ENV['INSTAGRAM_CALLBACK_URL'], $this->permissions);
     }
 
     /**
@@ -101,7 +101,7 @@ class InstagramGraphLogin {
 
         $oAuth2Client = $this->fb->getOAuth2Client();
         $tokenMetadata = $oAuth2Client->debugToken($accessToken);
-        $tokenMetadata->validateAppId(env('FACEBOOK_APP_ID'));
+        $tokenMetadata->validateAppId($_ENV['FACEBOOK_APP_ID']);
         $tokenMetadata->validateExpiration();
 
 

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Amirsarhang;
 use Facebook\Facebook;
+use Dotenv\Dotenv;
 
 session_start();
 
@@ -39,12 +40,15 @@ class Instagram
      */
     public function __construct(string $token = null)
     {
+        $dotenv = Dotenv::createImmutable(__DIR__.'/../../../../');
+        $dotenv->safeLoad();
+
         $this->token = $token;
 
         $this->fb = new Facebook([
-            'app_id' => getenv('FACEBOOK_APP_ID'),
-            'app_secret' => getenv('FACEBOOK_APP_SECRET'),
-            'default_graph_version' => getenv('FACEBOOK_GRAPH_VERSION')
+            'app_id' => $_ENV['FACEBOOK_APP_ID'],
+            'app_secret' => $_ENV['FACEBOOK_APP_SECRET'],
+            'default_graph_version' => $_ENV['FACEBOOK_GRAPH_VERSION']
         ]);
     }
 

@@ -21,7 +21,8 @@
     },
     "require": {
         "php": ">=7.0",
-        "facebook/graph-sdk": "^5.7"
+        "facebook/graph-sdk": "^5.7",
+        "vlucas/phpdotenv": "^5.3"
     },
     "autoload": {
         "psr-4": {
