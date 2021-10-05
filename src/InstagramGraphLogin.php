@@ -27,19 +27,6 @@ class InstagramGraphLogin {
      */
     private $fbHelper;
 
-    /*
-     * Facebook Permissions
-     */
-    private $permissions = [
-        'instagram_basic',
-        'pages_show_list',
-        'instagram_manage_comments',
-        'instagram_manage_messages',
-        'pages_manage_engagement',
-        'pages_read_engagement',
-        'pages_manage_metadata'
-    ];
-
     /**
      * Instantiates a new Facebook class object, Facebook Helper
      *
@@ -58,11 +45,12 @@ class InstagramGraphLogin {
     /**
      * Get Login Url for your Application
      *
+     * @param array $permissions
      * @return string
      */
-    public function getLoginUrl()
+    public function getLoginUrl(array $permissions): string
     {
-        return $this->fbHelper->getLoginUrl($_ENV['INSTAGRAM_CALLBACK_URL'], $this->permissions);
+        return $this->fbHelper->getLoginUrl($_ENV['INSTAGRAM_CALLBACK_URL'], $permissions);
     }
 
     /**

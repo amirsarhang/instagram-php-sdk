@@ -16,8 +16,6 @@ namespace Amirsarhang;
 use Facebook\Facebook;
 use Dotenv\Dotenv;
 
-session_start();
-
 /**
  * It's unofficial Instagram PHP SDK.
  */
@@ -55,13 +53,14 @@ class Instagram
     /**
      * Generate Login and Authenticate URL to Instagram Graph API.
      *
+     * @param array $permissions Instagram permissions
      * @return string
      */
-    public function auth(): string
+    public function getLoginUrl(array $permissions): string
     {
         $instagramLogin = new InstagramGraphLogin();
 
-        return $instagramLogin->getLoginUrl();
+        return $instagramLogin->getLoginUrl($permissions);
     }
 
     /**

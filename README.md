@@ -4,8 +4,6 @@
 [![Latest Version][badge-release]][packagist]
 [![Software License][badge-license]][license]
 [![PHP Version][badge-php]][php]
-[![Build Status][badge-build]][build]
-[![Coverage Status][badge-coverage]][coverage]
 [![Total Downloads][badge-downloads]][downloads]
 
 It's unofficial Instagram SDK for PHP.
@@ -23,6 +21,12 @@ command to install the package and add it as a requirement to your project's
 
 ```bash
 composer require amirsarhang/instagram-php-sdk
+```
+Or add the following to your composer.json file:
+```bash
+"require": {
+      "amirsarhang/instagram-php-sdk": "1.1.0"
+},
 ```
 
 
@@ -43,7 +47,7 @@ Put these values in your .env file:
 ```dotenv
 FACEBOOK_APP_ID="<YOUR_FACEBOOK_APP_ID>" // Get it from your FB developer dashboard
 FACEBOOK_APP_SECRET="<YOUR_FACEBOOK_APP_SECRET>" // Get it from your FB developer dashboard
-FACEBOOK_GRAPH_VERSION="v10.0" // You'r Graph version >= v10.0
+FACEBOOK_GRAPH_VERSION="v10.0" // Your Graph version >= v10.0
 INSTAGRAM_CALLBACK_URL="https://yoursite.com/instagram/callback" // Instagram callback after login
 ```
 
@@ -54,13 +58,28 @@ use Amirsarhang\Instagram;
 ...
 public function login()
 {
+    // Go to FB Documentations to see available permissions
+    $permissions = [
+        'instagram_basic',
+        'pages_show_list',
+        'instagram_manage_comments',
+        'instagram_manage_messages',
+        'pages_manage_engagement',
+        'pages_read_engagement',
+        'pages_manage_metadata'
+    ];
+    
     // Generate Instagram Graph Login URL
-    $login = (new Instagram())->auth();
+    $login = (new Instagram())->getLoginUrl($permissions);
     
     // Redirect To Facebook Login & Select Account Page
     return header("Location: ".$login);
 }
 ```
+* _**Please remember that your added permissions need verified by Facebook.**_
+
+[Here](https://developers.facebook.com/docs/permissions/reference) you can find Facebook Permissions.
+
 Generate & Save User Access Token in your Database.
 ```php
 use Amirsarhang\Instagram;
@@ -176,14 +195,10 @@ more information.
 [badge-release]: https://img.shields.io/packagist/v/amirsarhang/instagram-php-sdk.svg?style=flat-square&label=release
 [badge-license]: https://img.shields.io/packagist/l/amirsarhang/instagram-php-sdk.svg?style=flat-square
 [badge-php]: https://img.shields.io/packagist/php-v/amirsarhang/instagram-php-sdk.svg?style=flat-square
-[badge-build]: https://img.shields.io/travis/amirsarhang/instagram-php-sdk/master.svg?style=flat-square
-[badge-coverage]: https://img.shields.io/coveralls/github/amirsarhang/instagram-php-sdk/master.svg?style=flat-square
 [badge-downloads]: https://img.shields.io/packagist/dt/amirsarhang/instagram-php-sdk.svg?style=flat-square&colorB=mediumvioletred
 
 [source]: https://github.com/amirsarhang/instagram-php-sdk
 [packagist]: https://packagist.org/packages/amirsarhang/instagram-php-sdk
 [license]: https://github.com/amirsarhang/instagram-php-sdk/blob/master/LICENSE
 [php]: https://php.net
-[build]: https://travis-ci.org/amirsarhang/instagram-php-sdk
-[coverage]: https://coveralls.io/r/amirsarhang/instagram-php-sdk?branch=master
 [downloads]: https://packagist.org/packages/amirsarhang/instagram-php-sdk
