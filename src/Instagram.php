@@ -107,6 +107,20 @@ class Instagram
     }
 
     /**
+     * DELETE Request on Instagram Graph API.
+     *
+     * @param array $params DELETE parameters.
+     * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function delete(array $params, string $endpoint): array
+    {
+        return (new InstagramPayloads)->deletePayload($params, $endpoint, $this->token);
+    }
+
+    /**
      * Get Instagram connected Accounts List.
      *
      * @return array
@@ -158,5 +172,118 @@ class Instagram
     public function subscribeWebhook(int $facebookPageId, string $facebookPageAccessToken): array
     {
         return $this->post([],'/'.$facebookPageId.'/subscribed_apps?subscribed_fields=email&access_token='.$facebookPageAccessToken);
+    }
+
+    /**
+     * Get Comment Graph API.
+     *
+     * @param string $comment_id Comment ID
+     * @param array $fields Required fields
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function getComment(string $comment_id, array $fields = []): array
+    {
+        if (empty($comment_id)) {
+
+            $error = 'Instagram Comment Message: Missing Comment ID!';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $endpoint = '/'.$comment_id;
+
+        if (count($fields) > 0) {
+            $fields_str = implode(",", $fields);
+            $endpoint = '/'.$comment_id.'?fields='.$fields_str;
+        }
+
+        return self::get($endpoint);
+    }
+
+    /**
+     * Add Comment Graph API.
+     *
+     * @param string $message Comment's Text
+     * @param string $recipient_id Post or Comment ID
+     * @return array
+     */
+    public function addComment(string $message, string $recipient_id): array
+    {
+        $endpoint = $recipient_id.'/replies';
+
+        // Check if we have recipient or content
+        if (empty($message) || empty($recipient_id)) {
+
+            $error = 'Instagram Comment Message: Missing message or recipient!';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $params = [
+            'message' => $message,
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    /**
+     * DELETE Comment Graph API.
+     *
+     * @param string $comment_id Comment ID
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function deleteComment(string $comment_id): array
+    {
+        if (empty($comment_id)) {
+
+            $error = 'Instagram DELETE Comment Message: Missing Comment ID!';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $endpoint = '/'.$comment_id;
+
+        $params = [];
+
+        return self::delete($params, $endpoint);
+    }
+
+    /**
+     * Hide Comment Graph API.
+     *
+     * @param string $comment_id Comment ID
+     * @param bool $status Hide => true | UnHide => false
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function hideComment(string $comment_id, bool $status): array
+    {
+        if (empty($comment_id)) {
+
+            $error = 'Instagram HIDE Comment Message: Missing Comment ID';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $endpoint = '/'.$comment_id;
+
+        $params = [
+            'hide' => $status,
+        ];
+
+        return self::post($params, $endpoint);
     }
 }

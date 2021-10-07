@@ -6,7 +6,9 @@
 [![PHP Version][badge-php]][php]
 [![Total Downloads][badge-downloads]][downloads]
 
-It's unofficial Instagram SDK for PHP.
+It's Instagram Graph SDK for PHP. 
+
+With this package you can easily make all requests to Instagram Graph API, like Auth and CRUD. Also, we will have more methods regularly.
 
 This project adheres to a [Contributor Code of Conduct][conduct]. By
 participating in this project and its community, you are expected to uphold this
@@ -25,7 +27,7 @@ composer require amirsarhang/instagram-php-sdk
 Or add the following to your composer.json file:
 ```bash
 "require": {
-      "amirsarhang/instagram-php-sdk": "1.1.0"
+      "amirsarhang/instagram-php-sdk": "1.2.1"
 },
 ```
 
@@ -147,7 +149,6 @@ public function registerWebhook()
     $instagram = new Instagram($token);
 
     return $instagram->subscribeWebhook($fb_page_id, $token);
-
 }
 ```
 
@@ -158,7 +159,7 @@ use Amirsarhang\Instagram;
 public function userInfo()
 {
 
-    $instagram = new Instagram($this->token);
+    $instagram = new Instagram($access_token);
 
     $endpoint = '/me?fields=id,name';
 
@@ -167,6 +168,36 @@ public function userInfo()
 }
 ```
 * If your request is on graphEdge, you can pass `true` on `$instagram->get($endpoint, true)` as second parameter.
+
+## Methods
+
+### _Comment Methods_
+
+### Get Comment Data
+```php
+// Get default Comment fields data (Timestamp, text, id)
+$get_comment = $instagram->getComment($comment_id);
+
+// If you need other fields you can send them as array
+$get_comment = $instagram->getComment($comment_id, ['media','like_count']);
+
+return $get_comment;
+```
+
+### Add Comment
+```php
+return $instagram->addComment($recipient_id, 'Test Reply');
+```
+
+### Delete Comment
+```php
+return $instagram->deleteComment($comment_id);
+```
+
+### Hide & UnHide Comment
+```php
+return $instagram->hideComment($comment_id, true); // false for UnHide
+```
 
 I will add more Useful methods as soon as possible :)
 

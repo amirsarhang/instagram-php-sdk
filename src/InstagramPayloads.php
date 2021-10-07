@@ -26,6 +26,7 @@ class InstagramPayloads extends Instagram
      * @param string $endpoint
      * @param string $token
      * @return array
+     *
      * @throws \Facebook\Exceptions\FacebookSDKException
      */
     public function postPayload(array $params, string $endpoint, string $token): array
@@ -55,6 +56,7 @@ class InstagramPayloads extends Instagram
      * @param string $token
      * @param bool|null $graphEdge
      * @return array
+     *
      * @throws \Facebook\Exceptions\FacebookSDKException
      */
     public function getPayload(string $endpoint, string $token, bool $graphEdge = null): array
@@ -76,6 +78,36 @@ class InstagramPayloads extends Instagram
             return $response->getGraphEdge()->asArray();
         }
 
+        return $response->getGraphNode()->asArray();
+    }
+
+    /**
+     * Send DELETE request to Instagram Graph API.
+     *
+     * @param array $params
+     * @param string $endpoint
+     * @param string $token
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function deletePayload(array $params, string $endpoint, string $token): array
+    {
+        try {
+            $response = $this->fb->delete(
+                $endpoint,
+                $params,
+                $token
+            );
+        } catch (\Facebook\Exceptions\FacebookResponseException $e) {
+            echo 'Graph returned an error: '.json_encode($e->getResponseData());
+            exit;
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
+            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+
+        // Return result
         return $response->getGraphNode()->asArray();
     }
 }

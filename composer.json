@@ -1,8 +1,8 @@
 {
     "name": "amirsarhang/instagram-php-sdk",
-    "description": "It's unofficial Instagram SDK for PHP.",
+    "description": "It's Instagram Graph SDK for PHP. With this package you can easily make all requests to Instagram Graph API, like Auth and CRUD. Also, we will have more methods regularly.",
     "type": "library",
-    "keywords": ["Instagram", "Instagram-PHP", "Instagram-SDK", "Instagram-Library"],
+    "keywords": ["Instagram", "Instagram-PHP", "Instagram-SDK", "Instagram-Library", "Graph-API"],
     "homepage": "https://github.com/amirsarhang/instagram-php-sdk",
     "license": "MIT",
     "authors": [

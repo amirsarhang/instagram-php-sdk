@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace Instagram;
+namespace Amirsarhang;
 
 /**
  * A general exception for amirsarhang/instagram-php-sdk.
