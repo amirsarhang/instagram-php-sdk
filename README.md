@@ -199,6 +199,29 @@ return $instagram->deleteComment($comment_id);
 return $instagram->hideComment($comment_id, true); // false for UnHide
 ```
 
+### _Messaging Methods_
+
+### Get Message Data
+```php
+// Get default Message fields data (message, from, created_time, attachments, id)
+$get_message = $instagram->getMessage($message_id);
+
+// If you need other fields you can send them as array
+$get_message = $instagram->getMessage($message_id, ['attachments','from']);
+
+return $get_message;
+```
+
+### Send Text Message (Direct Message)
+```php
+return $instagram->addTextMessage($recipient_id, 'Test DM');
+```
+
+### Send Media Message (Direct Message)
+```php
+return $instagram->addMediaMessage($recipient_id, '<IMAGE_URL>');
+```
+
 I will add more Useful methods as soon as possible :)
 
 Check out the [documentation website][documentation] for detailed information

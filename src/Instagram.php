@@ -286,4 +286,108 @@ class Instagram
 
         return self::post($params, $endpoint);
     }
+
+    /**
+     * Get Message Graph API.
+     *
+     * @param string $message_id Message ID
+     * @param array $fields Required fields
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function getMessage(string $message_id, array $fields = []): array
+    {
+        if (empty($message_id)) {
+
+            $error = 'Instagram Messenger GET Message: Missing Message ID!';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $endpoint = '/'.$message_id.'?fields=message,from,created_time,attachments';
+
+        if (count($fields) > 0) {
+            $fields_str = implode(",", $fields);
+            $endpoint = '/'.$message_id.'?fields='.$fields_str;
+        }
+
+        return self::get($endpoint);
+    }
+
+    /**
+     * Add Text Message Graph API.
+     *
+     * @param string $recipient_id Instagram USER_ID
+     * @param string $message Message's Text
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function addTextMessage(string $recipient_id, string $message): array
+    {
+        if (empty($recipient_id) || empty($message)) {
+
+            $error = 'Instagram ADD Text Message in Messenger: Missing message or recipient!';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $endpoint = '/me/messages';
+
+        $params = [
+            'recipient' => [
+                'id' => $recipient_id,
+            ],
+            'message' => [
+                'text' => $message,
+            ],
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    /**
+     * Add Media Message Graph API.
+     *
+     * @param string $recipient_id Instagram USER_ID
+     * @param string $url Message Attachment's url
+     * @param string $type Message Attachment's type
+     * @return array
+     *
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     */
+    public function addMediaMessage(string $recipient_id, string $url, string $type = "image"): array
+    {
+        if (empty($recipient_id) || empty($url)) {
+
+            $error = 'Instagram ADD Media Message in Messenger: Missing attachment or recipient!';
+
+            error_log($error);
+
+            throw new InstagramException($error);
+        }
+
+        $endpoint = '/me/messages';
+
+        $params = [
+            'recipient' => [
+                'id' => $recipient_id,
+            ],
+            'message' => [
+                'attachment' => [
+                    'type' => $type,
+                    'payload' => [
+                        'url' => $url,
+                    ],
+                ],
+            ],
+        ];
+
+        return self::post($params, $endpoint);
+    }
 }
