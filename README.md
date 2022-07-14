@@ -148,9 +148,16 @@ public function registerWebhook()
     $fb_page_id= "<FACEBOOK_PAGE_ID>";
     $instagram = new Instagram($token);
 
+    // Default subscribe with email field
     return $instagram->subscribeWebhook($fb_page_id, $token);
+    
+    // You can pass your needed fields as an Array in the last parameter.
+    // Your app does not receive notifications for changes to a field
+    // unless you configure Page subscriptions in the App Dashboard and subscribe to that field.
+    return $instagram->subscribeWebhook($fb_page_id, $token, ["email", "feed", "mentions"]);
 }
 ```
+Check this [link](https://developers.facebook.com/micro_site/url/?click_from_context_menu=true&country=TR&destination=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fgraph-api%2Fwebhooks%2Fgetting-started%2Fwebhooks-for-instagram%23step-2--enable-page-subscriptions&event_type=click&last_nav_impression_id=0v2LwuGJA3Ewl6NHx&max_percent_page_viewed=99&max_viewport_height_px=1041&max_viewport_width_px=1792&orig_http_referrer=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fgraph-api%2Fwebhooks%2Fgetting-started%2Fwebhooks-for-instagram&orig_request_uri=https%3A%2F%2Fdevelopers.facebook.com%2Fajax%2Fdocs%2Fnav%2F%3Fpath1%3Dgraph-api%26path2%3Dwebhooks%26path3%3Dgetting-started%26path4%3Dwebhooks-for-instagram&region=emea&scrolled=true&session_id=1JPBKkD9blH7vdvMk&site=developers) for more details about page subscriptions.
 
 ### Usage
 ```php

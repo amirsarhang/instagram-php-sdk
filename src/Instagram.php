@@ -165,13 +165,16 @@ class Instagram
      *
      * @param int $facebookPageId Facebook Page ID
      * @param string $facebookPageAccessToken Facebook Page Access Token
+     * @param array $subscribed_fields Page field (example: ["feed"])
      * @return array
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
      */
-    public function subscribeWebhook(int $facebookPageId, string $facebookPageAccessToken): array
+    public function subscribeWebhook(int $facebookPageId, string $facebookPageAccessToken, array $subscribed_fields = ["email"]): array
     {
-        return $this->post([],'/'.$facebookPageId.'/subscribed_apps?subscribed_fields=email&access_token='.$facebookPageAccessToken);
+        $fields = implode(",", $subscribed_fields);
+
+        return $this->post([],'/'.$facebookPageId.'/subscribed_apps?subscribed_fields='.$fields.'&access_token='.$facebookPageAccessToken);
     }
 
     /**
