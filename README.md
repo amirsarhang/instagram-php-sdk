@@ -27,7 +27,7 @@ composer require amirsarhang/instagram-php-sdk
 Or add the following to your composer.json file:
 ```bash
 "require": {
-      "amirsarhang/instagram-php-sdk": "1.2.1"
+      "amirsarhang/instagram-php-sdk": "2.0.0"
 },
 ```
 
@@ -35,6 +35,11 @@ Or add the following to your composer.json file:
 ## Documentation
 
 ### Requirements
+
+| PHP Version | Package Version |
+|:-----------:|:---------------:|
+|  `>= 7.0`   |      `1.x`      |
+|  `>= 8.0`   |      `2.x`      |
 
 ****Please remember that you need verified Facebook APP to use this sdk.***
 <br>
