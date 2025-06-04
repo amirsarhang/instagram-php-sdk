@@ -12,34 +12,28 @@
 
 namespace Amirsarhang;
 
+use GuzzleHttp\Exception\GuzzleException;
+
 /**
  * Graph Login for Instagram PHP SDK.
  */
 class InstagramGraphLogin {
 
-    /*
-     * Facebook Object
-     */
-    private $fb;
-
-    /*
-     * Facebook helper
-     */
-    private $fbHelper;
+    private $client;
+    private $appId;
+    private $appSecret;
+    private $redirectUri;
 
     /**
-     * Instantiates a new Facebook class object, Facebook Helper
+     * Instantiates a new Guzzle Client
      *
      */
     public function __construct()
     {
-        $this->fb = new \Facebook\Facebook([
-            'app_id' => $_ENV['FACEBOOK_APP_ID'],
-            'app_secret' => $_ENV['FACEBOOK_APP_SECRET'],
-            'default_graph_version' => $_ENV['FACEBOOK_GRAPH_VERSION'],
-            'persistent_data_handler' => new SessionPersistentDataHandler()
-        ]);
-        $this->fbHelper = $this->fb->getRedirectLoginHelper();
+        $this->client      = new \GuzzleHttp\Client();
+        $this->appId       = $_ENV['INSTAGRAM_APP_ID'];
+        $this->appSecret   = $_ENV['INSTAGRAM_APP_SECRET'];
+        $this->redirectUri = $_ENV['INSTAGRAM_CALLBACK_URL'];
     }
 
     /**
@@ -50,62 +44,102 @@ class InstagramGraphLogin {
      */
     public function getLoginUrl(array $permissions): string
     {
-        return $this->fbHelper->getLoginUrl($_ENV['INSTAGRAM_CALLBACK_URL'], $permissions);
+        $query = http_build_query([
+            'client_id'            => $this->appId,
+            'redirect_uri'         => $this->redirectUri,
+            'scope'                => implode(',', $permissions),
+            'response_type'        => 'code',
+            'enable_fb_login'      => 0,
+            'force_authentication' => 1
+        ]);
+
+        return 'https://www.instagram.com/oauth/authorize?' . $query;
     }
 
     /**
      * returns an AccessToken.
      *
      *
-     * @return null|false
+     * @return array|false
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
-    public function getAccessToken()
+    public function getAccessToken($code)
     {
         try {
-            $accessToken = $this->fbHelper->getAccessToken();
-        } catch (\Facebook\Exceptions\FacebookResponseException $e) {
-            error_log('Graph returned an error: ' . $e->getMessage());
-            return false;
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            error_log('Facebook SDK returned an error: ' . $e->getMessage());
-            return false;
-        }
+            $response = $this->client->post('https://api.instagram.com/oauth/access_token', [
+                'form_params' => [
+                    'client_id'     => $this->appId,
+                    'client_secret' => $this->appSecret,
+                    'grant_type'    => 'authorization_code',
+                    'redirect_uri'  => $this->redirectUri,
+                    'code'          => $code,
+                ],
+            ]);
 
-        if (!isset($accessToken)) {
-            if ($this->fbHelper->getError()) {
-                $error = "Error: " . $this->fbHelper->getError() . "\n";
-                $error .= "Error Code: " . $this->fbHelper->getErrorCode() . "\n";
-                $error .= "Error Reason: " . $this->fbHelper->getErrorReason() . "\n";
-                $error .= "Error Description: " . $this->fbHelper->getErrorDescription() . "\n";
+            $data = json_decode($response->getBody(), true);
+            $access_token = $this->getLongLivedAccessToken($data['access_token']);
+            $user_info = $this->getUserInfo($access_token['access_token'], 'id,name,username');
 
-                error_log($error);
-            } else {
-                error_log('Bad request');
+            if (@$access_token && @$user_info) {
+                return array_merge($access_token, $user_info);
             }
             return false;
+        } catch (\Exception $e) {
+            error_log('Error retrieving access token: ' . $e->getMessage());
+            return false;
         }
-
-        $oAuth2Client = $this->fb->getOAuth2Client();
-        $tokenMetadata = $oAuth2Client->debugToken($accessToken);
-        $tokenMetadata->validateAppId($_ENV['FACEBOOK_APP_ID']);
-        $tokenMetadata->validateExpiration();
-
-
-        return $accessToken->getValue();
     }
 
     /**
-     * returns User Info for Connected Instagram IDs
+     * Generate Long Lived Access Token
      *
-     * @return array|false
-     *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @param string $access_token
+     * @return false|mixed
      */
-    public function getUserInfo()
+    public function getLongLivedAccessToken(string $access_token): mixed
     {
-        return ["access_token" => $this->getAccessToken()];
+        try {
+            $response = $this->client->get("https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=$this->appSecret&access_token=$access_token");
+            $data = json_decode($response->getBody(), true);
+            if (@$data) {
+                return $data;
+            }
+            return false;
+        } catch (GuzzleException $e) {
+            error_log('Error retrieving Long Lived access token: ' . $e->getMessage());
+            return false;
+        }
     }
 
+    /**
+     * returns User Info for Connected Instagram ID
+     *
+     * @param string $accessToken
+     * @param string $fields
+     * @return array|false
+     *
+     * @throws GuzzleException
+     */
+    public function getUserInfo(string $accessToken, string $fields = ''): bool|array
+    {
+        if (!$fields) {
+            $fields = 'user_id,name,biography,username,followers_count,follows_count,profile_picture_url,website';
+        }
+
+        try {
+            $response = $this->client->get('https://graph.instagram.com/me', [
+                'query' => [
+                    'fields'       => $fields,
+                    'access_token' => $accessToken,
+                ],
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+
+        } catch (\Exception $e) {
+            error_log('Error retrieving user info: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

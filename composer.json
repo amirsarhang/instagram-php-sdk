@@ -21,7 +21,6 @@
     },
     "require": {
         "php": ">=8.0",
-        "nickdnk/graph-sdk": "^7.0.1",
         "vlucas/phpdotenv": "^5.3"
     },
     "autoload": {

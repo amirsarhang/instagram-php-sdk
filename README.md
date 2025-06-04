@@ -27,7 +27,7 @@ composer require amirsarhang/instagram-php-sdk
 Or add the following to your composer.json file:
 ```bash
 "require": {
-      "amirsarhang/instagram-php-sdk": "2.0.0"
+      "amirsarhang/instagram-php-sdk": "3.0.0"
 },
 ```
 
@@ -36,25 +36,23 @@ Or add the following to your composer.json file:
 
 ### Requirements
 
-| PHP Version | Package Version |
-|:-----------:|:---------------:|
-|  `>= 7.0`   |      `1.x`      |
-|  `>= 8.0`   |      `2.x`      |
+| PHP Version | Package Version |     Connection Type     |             Required Parameters             |
+|:-----------:|:---------------:|:-----------------------:|:-------------------------------------------:|
+|  `>= 7.0`   |      `1.x`      | `Facebook Graph Login`  |  `FACEBOOK_APP_ID \| FACEBOOK_APP_SECRET`   |
+|  `>= 8.0`   |      `2.x`      | `Facebook Graph Login`  |  `FACEBOOK_APP_ID \| FACEBOOK_APP_SECRET`   |
+|  `>= 8.0`   |      `3.x`      | `Instagram Graph Login` | `INSTAGRAM_APP_ID \| INSTAGRAM_APP_SECRET`  |
 
-****Please remember that you need verified Facebook APP to use this sdk.***
+****Please remember that you need a verified Facebook APP to use this sdk.***
 <br>
-`FACEBOOK_APP_ID`
-<br>
-`FACEBOOK_APP_SECRET`
 
 ### Configuration
 
 Put these values in your .env file:
 
 ```dotenv
-FACEBOOK_APP_ID="<YOUR_FACEBOOK_APP_ID>" // Get it from your FB developer dashboard
-FACEBOOK_APP_SECRET="<YOUR_FACEBOOK_APP_SECRET>" // Get it from your FB developer dashboard
-FACEBOOK_GRAPH_VERSION="v10.0" // Your Graph version >= v10.0
+INSTAGRAM_APP_ID="<YOUR_INSTAGRAM_APP_ID>" // Get it from your Meta developer dashboard
+INSTAGRAM_APP_SECRET="<YOUR_INSTAGRAM_APP_SECRET>" // Get it from your Meta developer dashboard
+INSTAGRAM_GRAPH_VERSION="v21.0" // Your Graph version >= v19.0
 INSTAGRAM_CALLBACK_URL="https://yoursite.com/instagram/callback" // Instagram callback after login
 ```
 
@@ -65,83 +63,47 @@ use Amirsarhang\Instagram;
 ...
 public function login()
 {
-    // Go to FB Documentations to see available permissions
+    // Go to Meta Documentations to see available permissions
     $permissions = [
-        'instagram_basic',
-        'pages_show_list',
-        'instagram_manage_comments',
-        'instagram_manage_messages',
-        'pages_manage_engagement',
-        'pages_read_engagement',
-        'pages_manage_metadata'
+        'instagram_business_basic',
+        'instagram_business_manage_messages',
+        'instagram_business_manage_comments',
     ];
     
     // Generate Instagram Graph Login URL
     $login = (new Instagram())->getLoginUrl($permissions);
     
-    // Redirect To Facebook Login & Select Account Page
+    // Redirect To Instagram Login & Select Account Page
     return header("Location: ".$login);
 }
 ```
-* _**Please remember that your added permissions need verified by Facebook.**_
+* _**Please remember that your added permissions need verified by Meta.**_
 
-[Here](https://developers.facebook.com/docs/permissions/reference) you can find Facebook Permissions.
+[Here](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login) you can find Meta Permissions.
 
-Generate & Save User Access Token in your Database.
+Generate & Save Page Access Token in your Database.
 ```php
 use Amirsarhang\Instagram;
 ...
 public function callback()
 {
-    // Generate User Access Token After User Callback To Your Site
-    return Instagram::getUserAccessToken();
-}
-```
-Then we are ready to generate our page access token, but first we should get all selected page by user, then show
-them to your user to select which page's access token should be save in Database.
-
-```php
-use Amirsarhang\Instagram;
-...
-public function instagramAccounts(): array
-{
-    $token = "<USER_ACCESS_TOKEN>"; // We got it in callback
-    $instagram = new Instagram($token);
-
-    // Will return all instagram accounts that connected to your facebook selected pages.
-    return $instagram->getConnectedAccountsList(); 
+    // Get 'code' query string from Callback URL (ex. /callback?code=AQD5...)
+    $code = $_GET['code'];
+    
+    // Generate Page Access Token After User Callback To Your Site
+    return Instagram::getPageAccessToken($code);
 }
 ```
 ### Sample Response
 ```
-[
-"success": "true",
-"instagramAccounts": [
 {
-  "name": "Test Page",
-  "biography": "This is Test account",
-  "username": "username",
-  "followers_count": 167000,
-  "follows_count": 1,
-  "media_count": 231,
-  "profile_picture_url": "https://scontent.fist6-1.fna.fbcdn.net/v/123.jpg?_nc_cat=109&ccb=1-5&_nc_sid=86c713&_nc_ohc=Gnf5d6wdF3UAX8jVBUl&_nc_ht=scontent.fist6-1",
-  "id": "17841111111111111",
-  "fb_page_id": "108011111111111",
-  "fb_page_access_token": "EAAWq8obOe68BAA1r8GUHqOvVZHDY&WFWKHBDfJrjPswLuMb4E8ZCxCRvNW37bt9tslaBBRbTv"
-},
-{
-  "name": "Test Page2",
-  "biography": "This is other Test account",
-  "username": "username2",
-  "followers_count": 1200,
-  "follows_count": 22,
-  "media_count": 23,
-  "profile_picture_url": "https://scontent.fist6-1.fna.fbcdn.net/v/456.jpg?_nc_cat=109&ccb=1-5&_nc_sid=86c713&_nc_ohc=Gnf5d6wdF3UAX8jVBUl&_nc_ht=scontent.fist6-1",
-  "id": "17841222222222222",
-  "fb_page_id": "108022222222222",
-  "fb_page_access_token": "XXREWDY&WFWKHBDfJrjPswLuMb4E8ZCxCRvNW37bt9tslBCFEZDZD"
-}]
-]
+  "access_token": "IGQWRNSElpaDlWa0h1OXjsDhr8V3o0RHg2c2MyS2VTbmlyZA3k4ZAF8yT0Vh...",
+  "token_type": "bearer",
+  "expires_in": 5180249, // Access token expire timestamp (about 2 months)
+  "id": "1234567890123456", // Instagram page ID
+  "name": "Test Page", // Instagram page name
+  "username": "test_page" // Instagram page username
+}
 ```
 After storing selected page data by user in your database, then you need to call `subscribeWebhook()` to register this page for get real time Events.
 ```php
@@ -149,20 +111,20 @@ use Amirsarhang\Instagram;
 ...
 public function registerWebhook()
 {
-    $token = "<FACEBOOK_PAGE_ACCESS_TOKEN>";
-    $fb_page_id= "<FACEBOOK_PAGE_ID>";
+    $token = "<ACCESS_TOKEN>";
+    $instagram_page_id= "<INSTAGRAM_PAGE_ID>";
     $instagram = new Instagram($token);
 
-    // Default subscribe with email field
-    return $instagram->subscribeWebhook($fb_page_id, $token);
+    // Default subscribe with "messages" field
+    return $instagram->subscribeWebhook($instagram_page_id, $token);
     
-    // You can pass your needed fields as an Array in the last parameter.
+    // You can pass your necessary fields as an Array in the last parameter.
     // Your app does not receive notifications for changes to a field
     // unless you configure Page subscriptions in the App Dashboard and subscribe to that field.
-    return $instagram->subscribeWebhook($fb_page_id, $token, ["email", "feed", "mentions"]);
+    return $instagram->subscribeWebhook($instagram_page_id, $token, ["messages", "comments"]);
 }
 ```
-Check this [link](https://developers.facebook.com/micro_site/url/?click_from_context_menu=true&country=TR&destination=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fgraph-api%2Fwebhooks%2Fgetting-started%2Fwebhooks-for-instagram%23step-2--enable-page-subscriptions&event_type=click&last_nav_impression_id=0v2LwuGJA3Ewl6NHx&max_percent_page_viewed=99&max_viewport_height_px=1041&max_viewport_width_px=1792&orig_http_referrer=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fgraph-api%2Fwebhooks%2Fgetting-started%2Fwebhooks-for-instagram&orig_request_uri=https%3A%2F%2Fdevelopers.facebook.com%2Fajax%2Fdocs%2Fnav%2F%3Fpath1%3Dgraph-api%26path2%3Dwebhooks%26path3%3Dgetting-started%26path4%3Dwebhooks-for-instagram&region=emea&scrolled=true&session_id=1JPBKkD9blH7vdvMk&site=developers) for more details about page subscriptions.
+Check this [link](https://developers.facebook.com/docs/graph-api/webhooks/reference/instagram/) for more details about page subscriptions.
 
 ### Usage
 ```php
@@ -179,7 +141,6 @@ public function userInfo()
 
 }
 ```
-* If your request is on graphEdge, you can pass `true` on `$instagram->get($endpoint, true)` as second parameter.
 
 ## Methods
 
@@ -190,7 +151,7 @@ public function userInfo()
 // Get default Comment fields data (Timestamp, text, id)
 $get_comment = $instagram->getComment($comment_id);
 
-// If you need other fields you can send them as array
+// If you need other fields, you can send them as an array
 $get_comment = $instagram->getComment($comment_id, ['media','like_count']);
 
 return $get_comment;
@@ -218,7 +179,7 @@ return $instagram->hideComment($comment_id, true); // false for UnHide
 // Get default Message fields data (message, from, created_time, attachments, id)
 $get_message = $instagram->getMessage($message_id);
 
-// If you need other fields you can send them as array
+// If you need other fields, you can send them as an array
 $get_message = $instagram->getMessage($message_id, ['attachments','from']);
 
 return $get_message;

@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Amirsarhang;
 
+use GuzzleHttp\Exception\GuzzleException;
+
 /**
  * HTTP Payloads for Instagram PHP SDK.
  */
@@ -27,26 +29,29 @@ class InstagramPayloads extends Instagram
      * @param string $token
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
      */
     public function postPayload(array $params, string $endpoint, string $token): array
     {
         try {
-            $response = $this->fb->post(
+            $response = $this->client->post(
                 $endpoint,
-                $params,
-                $token
+                [
+                    'headers' => [
+                        'Authorization' => "Bearer $token",
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => $params,
+                ]
             );
-        } catch (\Facebook\Exceptions\FacebookResponseException $e) {
-            echo 'Graph returned an error: '.json_encode($e->getResponseData());
-            exit;
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+
+            $body = $response->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            echo 'Graph returned an error: '.$e->getMessage();
             exit;
         }
 
-        // Return result
-        return $response->getGraphNode()->asArray();
+        return json_decode($body, true);
     }
 
     /**
@@ -54,31 +59,29 @@ class InstagramPayloads extends Instagram
      *
      * @param string $endpoint
      * @param string $token
-     * @param bool|null $graphEdge
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
      */
-    public function getPayload(string $endpoint, string $token, bool $graphEdge = null): array
+    public function getPayload(string $endpoint, string $token): array
     {
         try {
-            $response = $this->fb->get(
+            $response = $this->client->get(
                 $endpoint,
-                $token
+                [
+                    'headers' => [
+                        'Authorization' => "Bearer $token",
+                        'Accept' => 'application/json',
+                    ],
+                ]
             );
-        } catch (\Facebook\Exceptions\FacebookResponseException $e) {
-            echo 'Graph returned an error: '.json_encode($e->getResponseData());
-            exit;
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            echo 'Facebook SDK returned an error: '.$e->getMessage();
+
+            $body = $response->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            echo 'Graph returned an error: '.$e->getMessage();
             exit;
         }
 
-        if ($graphEdge) {
-            return $response->getGraphEdge()->asArray();
-        }
-
-        return $response->getGraphNode()->asArray();
+        return json_decode($body, true);
     }
 
     /**
@@ -89,25 +92,28 @@ class InstagramPayloads extends Instagram
      * @param string $token
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
      */
     public function deletePayload(array $params, string $endpoint, string $token): array
     {
         try {
-            $response = $this->fb->delete(
+            $response = $this->client->delete(
                 $endpoint,
-                $params,
-                $token
+                [
+                    'headers' => [
+                        'Authorization' => "Bearer $token",
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => $params,
+                ]
             );
-        } catch (\Facebook\Exceptions\FacebookResponseException $e) {
-            echo 'Graph returned an error: '.json_encode($e->getResponseData());
-            exit;
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+
+            $body = $response->getBody()->getContents();
+        } catch (GuzzleException $e) {
+            echo 'Graph returned an error: ' . $e->getMessage();
             exit;
         }
 
-        // Return result
-        return $response->getGraphNode()->asArray();
+        return json_decode($body, true);
     }
 }

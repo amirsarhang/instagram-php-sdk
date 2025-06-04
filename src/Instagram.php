@@ -13,28 +13,28 @@
 declare(strict_types=1);
 
 namespace Amirsarhang;
-use Facebook\Facebook;
 use Dotenv\Dotenv;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
- * It's unofficial Instagram PHP SDK.
+ * It's an unofficial Instagram PHP SDK.
  */
 class Instagram
 {
     /**
-     * @var string|null The Instagram or Facebook AccessToken.
+     * @var string|null The Instagram AccessToken.
      */
     protected $token;
 
     /**
-     * @var string|null The subclass of the child GraphNode's.
+     * @var string|null New Guzzle Client.
      */
-    protected $fb;
+    protected $client;
 
     /**
-     * @param string|null $token The Instagram or Facebook AccessToken.
+     * @param string|null $token The Instagram AccessToken.
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
      */
     public function __construct(string $token = null)
     {
@@ -43,10 +43,8 @@ class Instagram
 
         $this->token = $token;
 
-        $this->fb = new Facebook([
-            'app_id' => $_ENV['FACEBOOK_APP_ID'],
-            'app_secret' => $_ENV['FACEBOOK_APP_SECRET'],
-            'default_graph_version' => $_ENV['FACEBOOK_GRAPH_VERSION']
+        $this->client = new Client([
+            "base_uri" => "https://graph.instagram.com/{$_ENV['INSTAGRAM_GRAPH_VERSION']}/",
         ]);
     }
 
@@ -64,32 +62,47 @@ class Instagram
     }
 
     /**
-     * Get User Access Token from Instagram Graph API Callback.
+     * Get Page Access Token from Instagram Graph API Callback.
      *
-     * @return string
+     * @param string $code The code that returned by Instagram after user callback.
+     * @return array|bool
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
-    public static function getUserAccessToken(): string
+    public static function getPageAccessToken(string $code): array|bool
     {
         $instagramLogin = new InstagramGraphLogin();
-        $connectedAccountsData = $instagramLogin->getUserInfo();
+        $connectedAccountsData = $instagramLogin->getAccessToken($code);
 
-        return $connectedAccountsData['access_token'];
+        return $connectedAccountsData;
+    }
+
+    /**
+     * Get Instagram User Info.
+     *
+     * @param string $access_token Access token
+     * @param string $fields "id,name"
+     * @return array|false
+     *
+     * @throws GuzzleException
+     */
+    public static function getUserInfo(string $access_token, string $fields = ''): array|bool
+    {
+        $instagramLogin = new InstagramGraphLogin();
+        return $instagramLogin->getUserInfo($access_token, $fields);
     }
 
     /**
      * Get Request on Instagram Graph API.
      *
      * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
-     * @param bool|null $graphEdge The request should be on `graphEdge` or `graphNode`.
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
-    public function get(string $endpoint, bool $graphEdge = null): array
+    public function get(string $endpoint): array
     {
-        return (new InstagramPayloads)->getPayload($endpoint, $this->token, $graphEdge);
+        return (new InstagramPayloads)->getPayload($endpoint, $this->token);
     }
 
     /**
@@ -99,7 +112,7 @@ class Instagram
      * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function post(array $params, string $endpoint): array
     {
@@ -113,7 +126,7 @@ class Instagram
      * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function delete(array $params, string $endpoint): array
     {
@@ -121,60 +134,33 @@ class Instagram
     }
 
     /**
-     * Get Instagram connected Accounts List.
+     * Get Instagram Connected Account Information.
      *
+     * @param string $access_token Access token
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
-    public function getConnectedAccountsList(): array
+    public function getConnectedAccount(string $access_token): array
     {
-        $accounts = self::get('/me/accounts', true);
-
-        $connected_instagram_ids = [];
-        foreach ($accounts as $value) {
-            $result = self::get('/'.$value['id'].'?fields=instagram_business_account');
-
-            if (@$result['instagram_business_account']) {
-                $fb_data = [
-                    'fb_page_id'=> $value['id'],
-                    'fb_page_access_token'=> $value['access_token'],
-                    'instagram_page_id'=> $result['instagram_business_account']['id'],
-                ];
-                // push instagram account ID to array
-                $connected_instagram_ids[] = $fb_data;
-            }
-        }
-
-        $instagram_accounts = [];
-        foreach ($connected_instagram_ids as $value) {
-            $response = self::get('/'.$value['instagram_page_id'].'?fields=name,biography,username,followers_count,follows_count,media_count,profile_picture_url,website');
-
-            $instagram_account = $response;
-            $instagram_account['fb_page_id'] = $value['fb_page_id'];
-            $instagram_account['fb_page_access_token'] = $value['fb_page_access_token'];
-
-            $instagram_accounts[] = json_decode(json_encode($instagram_account));
-        }
-
-        return ['success' => 'true', 'instagramAccounts' => $instagram_accounts];
+        $instagramLogin = new InstagramGraphLogin();
+        return $instagramLogin->getUserInfo($access_token);
     }
 
     /**
      * Subscribe Webhook to Graph API.
      *
-     * @param int $facebookPageId Facebook Page ID
-     * @param string $facebookPageAccessToken Facebook Page Access Token
-     * @param array $subscribed_fields Page field (example: ["feed"])
+     * @param string $accessToken Access token
+     * @param array $subscribed_fields Page field (example: ["messages"])
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
-    public function subscribeWebhook(int $facebookPageId, string $facebookPageAccessToken, array $subscribed_fields = ["email"]): array
+    public function subscribeWebhook(string $accessToken, array $subscribed_fields = ["messages"]): array
     {
         $fields = implode(",", $subscribed_fields);
 
-        return $this->post([],'/'.$facebookPageId.'/subscribed_apps?subscribed_fields='.$fields.'&access_token='.$facebookPageAccessToken);
+        return $this->post([],'/me/subscribed_apps?subscribed_fields='.$fields.'&access_token='.$accessToken);
     }
 
     /**
@@ -184,9 +170,9 @@ class Instagram
      * @param array $fields Required fields
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
-    public function getComment(string $comment_id, array $fields = []): array
+    public function getComment(string $comment_id, array $fields = ['timestamp','text']): array
     {
         if (empty($comment_id)) {
 
@@ -210,11 +196,12 @@ class Instagram
     /**
      * Add Comment Graph API.
      *
-     * @param string $message Comment's Text
      * @param string $recipient_id Post or Comment ID
+     * @param string $message Comment's Text
      * @return array
+     * @throws GuzzleException
      */
-    public function addComment(string $message, string $recipient_id): array
+    public function addComment(string $recipient_id, string $message): array
     {
         $endpoint = $recipient_id.'/replies';
 
@@ -241,7 +228,7 @@ class Instagram
      * @param string $comment_id Comment ID
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function deleteComment(string $comment_id): array
     {
@@ -268,7 +255,7 @@ class Instagram
      * @param bool $status Hide => true | UnHide => false
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function hideComment(string $comment_id, bool $status): array
     {
@@ -297,7 +284,7 @@ class Instagram
      * @param array $fields Required fields
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function getMessage(string $message_id, array $fields = []): array
     {
@@ -327,7 +314,7 @@ class Instagram
      * @param string $message Message's Text
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function addTextMessage(string $recipient_id, string $message): array
     {
@@ -362,7 +349,7 @@ class Instagram
      * @param string $type Message Attachment's type
      * @return array
      *
-     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @throws GuzzleException
      */
     public function addMediaMessage(string $recipient_id, string $url, string $type = "image"): array
     {
