@@ -1,1 +1,4 @@
+title: Instagram PHP SDK
+description: An unofficial PHP SDK for the Instagram Graph API.
 theme: jekyll-theme-cayman
+show_downloads: false

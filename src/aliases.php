@@ -12,11 +12,11 @@
 
 declare(strict_types=1);
 
-namespace Amirsarhang;
-
 /**
- * A general exception for amirsarhang/instagram-php-sdk.
+ * Keeps 3.x catch blocks working now that the exceptions live in their own namespace.
+ *
+ * @deprecated 4.0.0 Catch Amirsarhang\Exception\InstagramException instead.
  */
-class InstagramException extends \RuntimeException
-{
+if (!class_exists(Amirsarhang\InstagramException::class, false)) {
+    class_alias(Amirsarhang\Exception\InstagramException::class, Amirsarhang\InstagramException::class);
 }

@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.1', '8.2', '8.3', '8.4']
+
+    name: PHP ${{ matrix.php }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: pcov
+
+      - uses: ramsey/composer-install@v3
+
+      - run: composer run test-ci
+
+      - if: matrix.php == '8.3'
+        uses: coverallsapp/github-action@v2
+        with:
+          file: build/logs/clover.xml
+
+  quality:
+    runs-on: ubuntu-latest
+    name: Coding standards
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
+      - run: composer run lint
+
+      - run: composer run compat

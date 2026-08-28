@@ -2,7 +2,13 @@
     "name": "amirsarhang/instagram-php-sdk",
     "description": "It's Instagram Graph SDK for PHP. With this package you can easily make all requests to Instagram Graph API, like Auth and CRUD. Also, we will have more methods regularly.",
     "type": "library",
-    "keywords": ["Instagram", "Instagram-PHP", "Instagram-SDK", "Instagram-Library", "Graph-API"],
+    "keywords": [
+        "Instagram",
+        "Instagram-PHP",
+        "Instagram-SDK",
+        "Instagram-Library",
+        "Graph-API"
+    ],
     "homepage": "https://github.com/amirsarhang/instagram-php-sdk",
     "license": "MIT",
     "authors": [
@@ -21,14 +27,52 @@
     },
     "require": {
         "php": ">=8.0",
+        "php-http/discovery": "^1.19",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "guzzlehttp/guzzle": "^7.8",
+        "nyholm/psr7": "^1.8",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpunit/phpunit": "^9.6 || ^10.5 || ^11.0",
         "vlucas/phpdotenv": "^5.3"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "Any PSR-18 HTTP client will do; Guzzle is the most common one.",
+        "vlucas/phpdotenv": "Required only if you want Config::fromEnvironment() to read a .env file."
     },
     "autoload": {
         "psr-4": {
             "Amirsarhang\\": "src/"
+        },
+        "files": [
+            "src/aliases.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Amirsarhang\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "lint": "phpcs -p --standard=PSR12 src tests",
+        "lint-fix": "phpcbf --standard=PSR12 src tests",
+        "compat": "phpcs -p --standard=PHPCompatibility --runtime-set testVersion 8.0- --extensions=php src tests",
+        "test": [
+            "@lint",
+            "@compat",
+            "phpunit"
+        ],
+        "test-ci": "phpunit --coverage-clover build/logs/clover.xml --coverage-filter src"
+    },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
