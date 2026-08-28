@@ -58,7 +58,7 @@ When you do begin working on your feature, here are some guidelines to consider:
   ensure your code does, too.
 * Please **write tests** for any new features you add.
 * Please **ensure that tests pass** before submitting your pull request.
-  amirsarhang/instagram-php-sdk has Travis CI automatically running tests for pull requests.
+  amirsarhang/instagram-php-sdk has GitHub Actions automatically running tests for pull requests.
   However, running the tests locally will help save time.
 * **Use topic/feature branches.** Please do not ask to pull from your master
   branch.
@@ -90,6 +90,6 @@ composer run test
 [contributor code of conduct]: https://github.com/amirsarhang/instagram-php-sdk/blob/master/.github/CODE_OF_CONDUCT.md
 [issues]: https://github.com/amirsarhang/instagram-php-sdk/issues
 [pull requests]: https://github.com/amirsarhang/instagram-php-sdk/pulls
-[psr-12]: https://github.com/php-fig/fig-standards/blob/master/proposed/extended-coding-style-guide.md
+[psr-12]: https://www.php-fig.org/psr/psr-12/
 [gh-flow]: https://guides.github.com/introduction/flow/
 [git-commit]: https://chris.beams.io/posts/git-commit/
