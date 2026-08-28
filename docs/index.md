@@ -1,37 +1,49 @@
-## Welcome to GitHub Pages
+# Instagram PHP SDK
 
-You can use the [editor on GitHub](https://github.com/amirsarhang/instagram-php-sdk/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+An unofficial PHP SDK for the Instagram Graph API, covering Instagram Business
+Login, comments, direct messages and webhook subscriptions.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```bash
+composer require amirsarhang/instagram-php-sdk
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+```php
+use Amirsarhang\Instagram;
 
-### Jekyll Themes
+$instagram = new Instagram($accessToken);
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/amirsarhang/instagram-php-sdk/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+$instagram->comments()->reply($commentId, 'Thanks!');
+$instagram->messages()->sendText($userId, 'Hello there');
+$instagram->webhooks()->subscribe(['messages', 'comments']);
+```
 
-### Support or Contact
+## Documentation
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+| Page | What it covers |
+|:--|:--|
+| [Installation](installation.md) | Requirements, the HTTP client, and configuration |
+| [Authentication](authentication.md) | Business Login, access tokens, refreshing |
+| [Comments](comments.md) | Reading, replying, hiding and deleting |
+| [Messages](messages.md) | Reading and sending direct messages |
+| [Webhooks](webhooks.md) | Subscribing to real time events |
+| [Account](account.md) | The profile behind the access token |
+| [Raw requests](raw-requests.md) | Endpoints the SDK does not wrap yet |
+| [Error handling](error-handling.md) | The exception hierarchy and Graph error codes |
+| [Upgrading to 4.x](upgrading.md) | What changed and how to migrate |
+
+## Requirements
+
+| PHP Version | Package Version |     Connection Type     |             Required Parameters             |
+|:-----------:|:---------------:|:-----------------------:|:-------------------------------------------:|
+|  `>= 7.0`   |      `1.x`      | `Facebook Graph Login`  |  `FACEBOOK_APP_ID \| FACEBOOK_APP_SECRET`   |
+|  `>= 8.0`   |      `2.x`      | `Facebook Graph Login`  |  `FACEBOOK_APP_ID \| FACEBOOK_APP_SECRET`   |
+|  `>= 8.0`   |      `3.x`      | `Instagram Graph Login` | `INSTAGRAM_APP_ID \| INSTAGRAM_APP_SECRET`  |
+|  `>= 8.0`   |      `4.x`      | `Instagram Graph Login` | `INSTAGRAM_APP_ID \| INSTAGRAM_APP_SECRET`  |
+
+You need a verified Meta app to use this SDK in production.
+
+## Links
+
+* [GitHub repository](https://github.com/amirsarhang/instagram-php-sdk)
+* [Issue tracker](https://github.com/amirsarhang/instagram-php-sdk/issues)
+* [Meta's Instagram Platform docs](https://developers.facebook.com/docs/instagram-platform)
